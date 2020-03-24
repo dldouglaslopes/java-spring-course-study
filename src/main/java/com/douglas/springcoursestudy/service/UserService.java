@@ -4,10 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.douglas.springcoursestudy.domain.User;
 import com.douglas.springcoursestudy.exception.NotFoundException;
+import com.douglas.springcoursestudy.model.PageModel;
+import com.douglas.springcoursestudy.model.PageRequestModel;
 import com.douglas.springcoursestudy.repository.UserRepository;
 import com.douglas.springcoursestudy.service.util.HashUtil;
 
@@ -48,5 +53,19 @@ public class UserService {
 		
 		Optional<User> result = userRepository.login(email, password);
 		return result.get();
+	}
+	
+	public PageModel<User> listAllOnLazyMode(PageRequestModel pr) {
+		Pageable pageable = PageRequest.of(pr.getPage(), pr.getSize());
+		Page<User> page = userRepository.findAll(pageable);
+		PageModel<User> pm = new PageModel<>((int) page.getTotalElements(), 
+												page.getSize(), 
+												page.getTotalPages(), 
+												page.getContent());
+		return pm;
+	}
+	
+	public int updateRole(User user) {
+		return userRepository.updateRole(user.getId(), user.getRole());
 	}
 }
