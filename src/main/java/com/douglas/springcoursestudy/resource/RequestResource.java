@@ -3,6 +3,7 @@ package com.douglas.springcoursestudy.resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import com.douglas.springcoursestudy.domain.Request;
 import com.douglas.springcoursestudy.domain.RequestStage;
 import com.douglas.springcoursestudy.model.PageModel;
 import com.douglas.springcoursestudy.model.PageRequestModel;
+import com.douglas.springcoursestudy.security.AccessManager;
 import com.douglas.springcoursestudy.service.RequestService;
 import com.douglas.springcoursestudy.service.RequestStageService;
 
@@ -27,6 +29,8 @@ public class RequestResource {
 	private RequestService requestService;
 	@Autowired
 	private RequestStageService stageService;
+	@Autowired
+	private AccessManager accessManager;
 	
 	@PostMapping
 	public ResponseEntity<Request> save(@RequestBody Request request) {
@@ -34,6 +38,7 @@ public class RequestResource {
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdRequest);
 	}
 	
+	@PreAuthorize("@accessManager.isRequestOwner(#id)")
 	@PutMapping("/{id}")
 	public ResponseEntity<Request> update(@PathVariable(name = "id") Long id,
 										@RequestBody Request request) {
